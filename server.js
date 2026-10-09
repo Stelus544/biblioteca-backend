@@ -16,7 +16,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // Servir la carpeta uploads para acceder a las imágenes subidas
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
 // Conexión a MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB Conectado exitosamente'))
