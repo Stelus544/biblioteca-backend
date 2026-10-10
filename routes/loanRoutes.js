@@ -14,10 +14,10 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 // Obtener préstamos del estudiante logueado
 router.get('/my-loans', protect, getMyLoans);
 
-// Solicitar préstamo (Estudiantes y Admins)
-router.post('/request', protect, requestLoan);
+// Solicitar préstamo (Estudiantes y Admins) -> Responde a POST /api/loans
+router.post('/', protect, requestLoan);
 
-// Obtener todos los préstamos (Solo Admin)
+// Obtener todos los préstamos (Solo Admin) -> Responde a GET /api/loans
 router.get('/', protect, authorize('admin'), getLoans);
 
 // Aprobar préstamo asignando días (Solo Admin)
