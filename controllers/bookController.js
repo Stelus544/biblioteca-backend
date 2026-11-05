@@ -10,78 +10,60 @@ exports.getBooks = async (req, res) => {
   }
 };
 
-// Obtener libro por ID
-exports.getBookById = async (req, res) => {
-  try {
-    const book = await Book.findById(req.params.id);
-    if (!book) return res.status(404).json({ mensaje: 'Libro no encontrado' });
-    res.json(book);
-  } catch (error) {
-    res.status(500).json({ mensaje: 'Error al obtener el libro', error: error.message });
-  }
-};
-
-// Crear un libro
+// Crear un libro (Admin)
 exports.createBook = async (req, res) => {
   try {
-    const { titulo, sinopsis, portadaUrl, stock } = req.body;
-
-    let portada = '';
-    if (req.file) {
-      portada = `/uploads/${req.file.filename}`;
-    } else if (portadaUrl) {
-      portada = portadaUrl;
-    } else {
-      return res.status(400).json({ mensaje: 'Debes proporcionar una URL o subir un archivo de portada' });
-    }
-
+    const { titulo, autor, descripcion, categoria, clasificacion, stock, portada } = req.body;
+    
     const newBook = await Book.create({
       titulo,
-      sinopsis,
-      portada,
-      stock: Number(stock) || 1,
-      creadoPor: req.user._id
+      autor,
+      descripcion: descripcion || '',
+      categoria: categoria || 'Literatura',
+      clasificacion: clasificacion || '',
+      stock: stock || 1,
+      portada: portada || ''
     });
 
-    res.status(201).json({ mensaje: 'Libro creado exitosamente', book: newBook });
+    res.status(201).json({ mensaje: '✅ Libro creado con éxito', book: newBook });
   } catch (error) {
     res.status(500).json({ mensaje: 'Error al crear el libro', error: error.message });
   }
 };
 
-// Actualizar libro
+// Actualizar un libro (Admin)
 exports.updateBook = async (req, res) => {
   try {
-    const { titulo, sinopsis, portadaUrl, disponible, stock } = req.body;
-    const book = await Book.findById(req.params.id);
+    const { id } = req.params;
+    const { titulo, autor, descripcion, categoria, clasificacion, stock, portada } = req.body;
 
-    if (!book) return res.status(404).json({ mensaje: 'Libro no encontrado' });
+    const updatedBook = await Book.findByIdAndUpdate(
+      id,
+      { titulo, autor, descripcion, categoria, clasificacion, stock, portada },
+      { new: true, runValidators: true }
+    );
 
-    if (req.file) {
-      book.portada = `/uploads/${req.file.filename}`;
-    } else if (portadaUrl) {
-      book.portada = portadaUrl;
+    if (!updatedBook) {
+      return res.status(404).json({ mensaje: 'Libro no encontrado' });
     }
 
-    if (titulo) book.titulo = titulo;
-    if (sinopsis) book.sinopsis = sinopsis;
-    if (stock !== undefined) book.stock = stock;
-    if (disponible !== undefined) book.disponible = disponible;
-
-    await book.save();
-    res.json({ mensaje: 'Libro actualizado exitosamente', book });
+    res.json({ mensaje: '✅ Libro actualizado con éxito', book: updatedBook });
   } catch (error) {
     res.status(500).json({ mensaje: 'Error al actualizar el libro', error: error.message });
   }
 };
 
-// Eliminar libro
+// Eliminar un libro (Admin)
 exports.deleteBook = async (req, res) => {
   try {
-    const book = await Book.findByIdAndDelete(req.params.id);
-    if (!book) return res.status(404).json({ mensaje: 'Libro no encontrado' });
+    const { id } = req.params;
+    const deletedBook = await Book.findByIdAndDelete(id);
 
-    res.json({ mensaje: 'Libro eliminado exitosamente' });
+    if (!deletedBook) {
+      return res.status(404).json({ mensaje: 'Libro no encontrado' });
+    }
+
+    res.json({ mensaje: '✅ Libro eliminado correctamente' });
   } catch (error) {
     res.status(500).json({ mensaje: 'Error al eliminar el libro', error: error.message });
   }
