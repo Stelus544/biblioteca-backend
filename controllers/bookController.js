@@ -14,20 +14,21 @@ exports.getBooks = async (req, res) => {
 exports.createBook = async (req, res) => {
   try {
     const { titulo, autor, descripcion, categoria, clasificacion, stock, portada } = req.body;
-    
-    const newBook = await Book.create({
+
+    const nuevoLibro = await Book.create({
       titulo,
-      autor,
+      autor: autor || 'Autor desconocido',
       descripcion: descripcion || '',
       categoria: categoria || 'Literatura',
       clasificacion: clasificacion || '',
-      stock: stock || 1,
-      portada: portada || ''
+      stock: Number(stock) || 1,
+      portada: portada || '' // Guarda la URL directamente
     });
 
-    res.status(201).json({ mensaje: '✅ Libro creado con éxito', book: newBook });
+    res.status(201).json({ mensaje: '✅ Libro creado con éxito', book: nuevoLibro });
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al crear el libro', error: error.message });
+    console.error('Error al crear libro:', error);
+    res.status(500).json({ mensaje: 'Error al registrar el libro', error: error.message });
   }
 };
 
